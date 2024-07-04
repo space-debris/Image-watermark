@@ -14,6 +14,49 @@ from PIL import Image, ImageDraw, ImageFont, ImageStat
 
 # # Display the image
 # im.show()
+def add_watermark(image_path,watermar_text):
+  image=Image.open(image_path)
+  draw=ImageDraw.Draw(image)
+
+  #font
+  width,height = image.size
+  font_size=int(min(width,height)*0.05)
+  #make a popup asking for font type
+  font = ImageFont.truetype("arial.ttf",font_size)
+
+  #positioning the text to bottom right
+  #study this textlenght thingggg
+  text_widht=draw.textlength(watermar_text,font)
+  x=width-text_widht-10
+  y=width-text_widht-10
+
+  #calculating the avg brightness
+  def brightness_checker(image):
+    #study this convert and imagestat
+    im=image.convert('L')
+    stat=ImageStat.Stat(im)
+    return stat.mean[0]/255
+  
+  #setting the fill wrt to the brightness
+  if brightness_checker(image=image)>0.5:
+    fill=(0,0,0,128)
+  else:
+    fill=(255,255,255,128)
+  
+  #draw the watermark
+  draw.text((x,y),watermar_text,fill=fill,font=font)
+
+  #saving the image
+  #study this pathhhh
+  output_path=f"./{image_path.split('/')[-1]}"
+  image.save(output_path)
+  image.show()
+
+
+
+
+
+  #aybe enhance image before watermark? or ask to enhance?
 
 def open_file():
   file_path=filedialog.askopenfilename(filetypes=[("Image files", "*.png *.jpg *.jpeg *.gif *.bmp")])
@@ -75,7 +118,8 @@ watermark_entry.config(width=30)
 watermark_entry.grid(row=2, column=1, padx=5, pady=5)
 
 watermark_button = ttk.Button(window,text="Watermark", command=watermark)
-
+#watermark_button.config(pady=4, padx=2)
+watermark_button.grid(row=3, column=1)
 
 #popup
 message_label = Label(window, text="")
